@@ -1,34 +1,59 @@
-const puppeteer = require('puppeteer-core');
-
-const choosePrimat = require('./choosePRIMAT');
-const { runPuppeteer } = require('./runPuppeteer');
+const fetchTable = require('./fetchTable');
+const tableToJson = require('tabletojson').Tabletojson;
 
 (async function () {
-    // const browser = await puppeteer.launch({
-    //     executablePath: `C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe`,
-    // });
-    const browser = await runPuppeteer();
+    const HTMLtable = await fetchTable();
 
-    const MAIpage = await browser.newPage();
-    await MAIpage.goto('https://priem.mai.ru/rating/', {
-        waitUntil: "networkidle0",
-    });
+    const tables = tableToJson.convert(HTMLtable);
 
-    // Show PRIMAT table
-    // await choosePrimat(MAIpage);
+    const dormRequired = tables.map(
+        table => table.filter(
+            applicant => applicant['Нуждаемость в общежитии']
+        )
+    );
 
-    await MAIpage.waitForSelector('#place');
-    await MAIpage.waitFor(1666);
+    const dormRequiredHighScores = dormRequired.map(table => table.filter(applicant =>
+        Number(applicant['Сумма конкурсных баллов']) >= 264)
+    );
 
-    await MAIpage.click('#place', {
-        delay: 15,
-    })
-    console.log('clicked');
+    const dormRequiredHighScoresOriginals = dormRequiredHighScores.map(table =>
+        table.filter(applicant => applicant['Согласие на зачисление'])
+    );
 
-    await MAIpage.waitFor(5000)
+    const dormRequiredHighScoresOriginalsLength = dormRequiredHighScoresOriginals.reduce(
+        (sum, table) => sum += table.length,
+        0
+    );
 
-    await MAIpage.click('#place')
-    console.log('clicked');
-    
+    console.log('\nВ полном списке я нахожусь на месте:');
+    console.log(findMyPlace(tables));
 
+    console.log('\nCреди тех, кому нужно общежитие, я нахожусь на месте:');
+    console.log(findMyPlace(dormRequired));
+
+    console.log('\nПоследний человек с суммой баллов >= 264 среди тех, кому нужно общежитие и кто подал согласие, находится на месте:');
+    console.log(dormRequiredHighScoresOriginalsLength);
+
+    console.log('\nЯ буду на месте или выше:');
+    console.log(dormRequiredHighScoresOriginalsLength + 1);
 })();
+
+function findMyIndex(tables) {
+    return findIndexByName(tables, 'Бояркин Владислав Витальевич');
+}
+function findMyPlace(tables) {
+    return findPlaceByName(tables, 'Бояркин Владислав Витальевич');
+}
+
+function findIndexByName(tables, FIO) {
+    return tables[3].findIndex(
+        applicant => applicant['ФИО'] === FIO
+    );
+}
+function findPlaceByName(tables, FIO) {
+    // учесть БВИ, целевиков, особую квоту
+    return tables[0].length +
+        tables[1].length +
+        tables[2].length +
+        findIndexByName(tables, FIO) + 1; // нумерация с единицы 
+}
