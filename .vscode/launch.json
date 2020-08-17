@@ -15,6 +15,18 @@
             "env": {
                 "CHROME_DEBUG_PORT": "9222",
             }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "ADMLIST",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\fetchAdmlistTable.js",
+            "env": {
+                "CHROME_DEBUG_PORT": "9222",
+            }
         }
     ]
 }

@@ -1,59 +1,60 @@
 const fetchTable = require('./fetchTable');
 const tableToJson = require('tabletojson').Tabletojson;
+const consoleTable = require('console-table-printer').printTable;
+const fetchAdmlistTable = require('./fetchAdmlistData');
+const combineMaiAndAdmlist = require('./combineMaiAndAdmlist');
+const getAnalytics = require('./getAnalytics');
+
+const FIO = 'Бояркин Владислав Витальевич';
+const studyField = {
+    name: 'Прикладная математика',
+    code: '01.03.04',
+    admlistURL: 'http://admlist.ru/mai/6e9d426ceb62e999577b9e195cbcc865.html',
+};
 
 (async function () {
     const HTMLtable = await fetchTable();
 
-    const tables = tableToJson.convert(HTMLtable);
+    const maiTables = tableToJson.convert(HTMLtable);
 
-    const dormRequired = tables.map(
-        table => table.filter(
-            applicant => applicant['Нуждаемость в общежитии']
-        )
+    const admlistData = await fetchAdmlistTable(studyField.admlistURL);
+
+    const applicants = combineMaiAndAdmlist(maiTables, admlistData);
+
+    const analytics = getAnalytics(FIO, applicants);
+
+    analytics.forEach(entry => {
+        console.log('');
+        console.log(entry.description);
+        console.log(entry.place);
+    });
+
+
+    const dorm2019 = [
+        { 'Место': 27, 'Баллы': 260, 'Место в общем рейтинге': 315, 'Волна': 'I волна' },
+        { 'Место': 28, 'Баллы': 259, 'Место в общем рейтинге': 332, 'Волна': 'I волна' },
+        { 'Место': 29, 'Баллы': 259, 'Место в общем рейтинге': 320, 'Волна': 'I волна' },
+        { 'Место': 30, 'Баллы': 259, 'Место в общем рейтинге': 331, 'Волна': 'I волна' },
+        { 'Место': 31, 'Баллы': 273, 'Место в общем рейтинге': 114, 'Волна': 'II волна' },
+    ];
+
+    printTable(dorm2019);
+
+
+    const scoresNow = [114, 315, 320, 331, 332].map(
+        oldPosition => ({
+            'Место в рейтинге в 2019': oldPosition,
+            'Баллы этого места в рейтинге сейчас': getScoresByRatingPosition(maiTables, oldPosition)
+        })
     );
 
-    const dormRequiredHighScores = dormRequired.map(table => table.filter(applicant =>
-        Number(applicant['Сумма конкурсных баллов']) >= 264)
-    );
-
-    const dormRequiredHighScoresOriginals = dormRequiredHighScores.map(table =>
-        table.filter(applicant => applicant['Согласие на зачисление'])
-    );
-
-    const dormRequiredHighScoresOriginalsLength = dormRequiredHighScoresOriginals.reduce(
-        (sum, table) => sum += table.length,
-        0
-    );
-
-    console.log('\nВ полном списке я нахожусь на месте:');
-    console.log(findMyPlace(tables));
-
-    console.log('\nCреди тех, кому нужно общежитие, я нахожусь на месте:');
-    console.log(findMyPlace(dormRequired));
-
-    console.log('\nПоследний человек с суммой баллов >= 264 среди тех, кому нужно общежитие и кто подал согласие, находится на месте:');
-    console.log(dormRequiredHighScoresOriginalsLength);
-
-    console.log('\nЯ буду на месте или выше:');
-    console.log(dormRequiredHighScoresOriginalsLength + 1);
+    printTable(scoresNow);
 })();
 
-function findMyIndex(tables) {
-    return findIndexByName(tables, 'Бояркин Владислав Витальевич');
-}
-function findMyPlace(tables) {
-    return findPlaceByName(tables, 'Бояркин Владислав Витальевич');
+
+
+function printTable(table) {
+    // console.log(consoleTable(table).toString());
+    console.table(table);
 }
 
-function findIndexByName(tables, FIO) {
-    return tables[3].findIndex(
-        applicant => applicant['ФИО'] === FIO
-    );
-}
-function findPlaceByName(tables, FIO) {
-    // учесть БВИ, целевиков, особую квоту
-    return tables[0].length +
-        tables[1].length +
-        tables[2].length +
-        findIndexByName(tables, FIO) + 1; // нумерация с единицы 
-}
