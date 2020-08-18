@@ -1,23 +1,27 @@
 const fetchTable = require('./fetchTable');
 const tableToJson = require('tabletojson').Tabletojson;
 const consoleTable = require('console-table-printer').printTable;
-const fetchAdmlistTable = require('./fetchAdmlistData');
+const fetchAdmlistData = require('./fetchAdmlistData');
 const combineMaiAndAdmlist = require('./combineMaiAndAdmlist');
 const getAnalytics = require('./getAnalytics');
 
 const FIO = 'Бояркин Владислав Витальевич';
 const studyField = {
-    name: 'Прикладная математика',
+    studyField: 'Прикладная математика',
     code: '01.03.04',
     admlistURL: 'http://admlist.ru/mai/6e9d426ceb62e999577b9e195cbcc865.html',
+    maiQuery: '_1_l1_s2_f1_p1',
 };
 
 (async function () {
-    const HTMLtable = await fetchTable();
+    const HTMLtablePromise = fetchTable(studyField);
+    const admlistDataPromise = fetchAdmlistData(studyField);
+
+    // Async load mai and admlist ratings
+    const [HTMLtable, admlistData] = await Promise.all([HTMLtablePromise, admlistDataPromise]);
 
     const maiTables = tableToJson.convert(HTMLtable);
 
-    const admlistData = await fetchAdmlistTable(studyField.admlistURL);
 
     const applicants = combineMaiAndAdmlist(maiTables, admlistData);
 
