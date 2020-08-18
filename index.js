@@ -1,9 +1,10 @@
-const fetchTable = require('./fetchTable');
 const tableToJson = require('tabletojson').Tabletojson;
 const consoleTable = require('console-table-printer').printTable;
-const fetchAdmlistData = require('./fetchAdmlistData');
-const combineMaiAndAdmlist = require('./combineMaiAndAdmlist');
-const getAnalytics = require('./getAnalytics');
+
+const fetchAdmlistData = require('./data fetching/fetchAdmlistData');
+const fetchTable = require('./data fetching/fetchTable');
+const combineMaiAndAdmlist = require('./data processing and analytics/combineMaiAndAdmlist');
+const getAnalytics = require('./data processing and analytics/getAnalytics');
 
 const FIO = 'Бояркин Владислав Витальевич';
 const studyField = {

@@ -4,12 +4,17 @@ const threshold = 3 * 60 * 1000; // miliseconds
 
 module.exports = async function (type, studyField, url, getUrlCallback) {
     try {
-        const path = `./fetched tables/${studyField}/${type}/`;
-
         if (type !== 'mai' && type !== 'admlist')
             throw new Error("tryloadFetchedTable: Type should be 'mai' or 'admlist' but is " + type);
 
-        const lastFetched = await fs.readFile(path + 'lastFetched.txt', { encoding: 'utf-8' });
+        const path = `./data fetching/fetched tables/${studyField}/${type}/`;
+        const lastFetchedPath = path + 'lastFetched.txt';
+
+        // Ensure lastFetched.txt exists
+        await fs.ensureFile(lastFetchedPath);
+
+        // If lastFetched.txt has just been created, elapsed will be really big and that's ok
+        const lastFetched = await fs.readFile(lastFetchedPath, { encoding: 'utf-8' });
         const elapsed = new Date().getTime() - lastFetched;
 
         // if there is fresh data

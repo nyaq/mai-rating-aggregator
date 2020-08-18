@@ -19,11 +19,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "ADMLIST",
+            "name": "TEST",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\fetchAdmlistTable.js",
+            "program": "${workspaceFolder}\\TEST.js",
             "env": {
                 "CHROME_DEBUG_PORT": "9222",
             }

@@ -83,8 +83,7 @@ function combineApplicants(flattenTable, admlist) {
         const combinedApplicant = combineTwoApplicants(applicants[0], applicants[1]);
 
         if (!combinedApplicant) {
-            debugger;
-            console.log('An aspplicant is undefined!');
+            console.log('An applicant is undefined!');
         }
 
         combinedTable.push(combinedApplicant);
@@ -97,10 +96,13 @@ function combineMismatchedApplicants(maiApplicant, notInMaiMap) {
     const shrinkedName = getShrinkedName(maiApplicant);
 
     // If they have different scores
-    if (notInMaiMap.has(shrinkedName))
+    if (notInMaiMap.has(shrinkedName)) {
+        console.log('Combined mismatched applicants with shrinkedName');
         return combineTwoApplicants(maiApplicant, notInMaiMap.get(shrinkedName));
-    else
+    }
+    else {
         return combineTwoApplicants(maiApplicant, null);
+    }
 }
 
 function combineTwoApplicants(maiApplicant, admApplicant) {
