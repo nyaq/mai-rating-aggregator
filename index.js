@@ -5,16 +5,13 @@ const fetchAdmlistData = require('./data fetching/fetchAdmlistData');
 const fetchTable = require('./data fetching/fetchTable');
 const combineMaiAndAdmlist = require('./data processing and analytics/combineMaiAndAdmlist');
 const getAnalytics = require('./data processing and analytics/getAnalytics');
+const { prepareAdmlistData, prepareMaiData } = require('./data processing and analytics/prepareData');
+const { getStudyField } = require('./data fetching/getStudyField');
 
-const FIO = 'Бояркин Владислав Витальевич';
-const studyField = {
-    studyField: 'Прикладная математика',
-    code: '01.03.04',
-    admlistURL: 'http://admlist.ru/mai/6e9d426ceb62e999577b9e195cbcc865.html',
-    maiQuery: '_1_l1_s2_f1_p1',
-};
 
-(async function () {
+module.exports.fetchProcessAndAnalyzeData = async function (studyFieldName, FIO) {
+    const studyField = await getStudyField(studyFieldName);
+
     const HTMLtablePromise = fetchTable(studyField);
     const admlistDataPromise = fetchAdmlistData(studyField);
 
@@ -23,8 +20,10 @@ const studyField = {
 
     const maiTables = tableToJson.convert(HTMLtable);
 
+    const flattenMaiTable = prepareMaiData(maiTables);
+    const admlist = prepareAdmlistData(admlistData);
 
-    const applicants = combineMaiAndAdmlist(maiTables, admlistData);
+    const applicants = combineMaiAndAdmlist(flattenMaiTable, admlist);
 
     const analytics = getAnalytics(FIO, applicants);
 
@@ -34,32 +33,29 @@ const studyField = {
         console.log(entry.place);
     });
 
+    const analyticsTable = {
+        'Во всём списке': {
+            'Во всём списке': analytics[0].place,
+            'Среди НЕ подавших согласие в другое место': analytics[4].place,
+            'Среди подавших согласие': analytics[2].place,
+        },
+        'Среди нуждающихся в общежитии': {
+            'Во всём списке': analytics[1].place,
+            'Среди НЕ подавших согласие в другое место': analytics[5].place,
+            'Среди подавших согласие': analytics[3].place,
+        },
+    };
 
-    const dorm2019 = [
-        { 'Место': 27, 'Баллы': 260, 'Место в общем рейтинге': 315, 'Волна': 'I волна' },
-        { 'Место': 28, 'Баллы': 259, 'Место в общем рейтинге': 332, 'Волна': 'I волна' },
-        { 'Место': 29, 'Баллы': 259, 'Место в общем рейтинге': 320, 'Волна': 'I волна' },
-        { 'Место': 30, 'Баллы': 259, 'Место в общем рейтинге': 331, 'Волна': 'I волна' },
-        { 'Место': 31, 'Баллы': 273, 'Место в общем рейтинге': 114, 'Волна': 'II волна' },
-    ];
-
-    printTable(dorm2019);
-
-
-    const scoresNow = [114, 315, 320, 331, 332].map(
-        oldPosition => ({
-            'Место в рейтинге в 2019': oldPosition,
-            'Баллы этого места в рейтинге сейчас': getScoresByRatingPosition(maiTables, oldPosition)
-        })
-    );
-
-    printTable(scoresNow);
-})();
+    return { analyticsTable, flattenMaiTable };
+};
 
 
 
-function printTable(table) {
+module.exports.printTable = function printTable(table, title, fillXtimes = 10) {
+    const filler = ' '.repeat(fillXtimes);
+    console.log('\n' + `${filler}=== ${title} ===`);
+
     // console.log(consoleTable(table).toString());
     console.table(table);
+    console.log('');
 }
-

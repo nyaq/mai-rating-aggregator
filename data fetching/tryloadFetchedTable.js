@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const fetch = require('node-fetch');
-const threshold = 3 * 60 * 1000; // miliseconds
+const threshold = 5 * 60 * 1000; // 5 min in miliseconds
 
 module.exports = async function (type, studyField, url, getUrlCallback) {
     try {
@@ -31,7 +31,8 @@ module.exports = async function (type, studyField, url, getUrlCallback) {
 
         // async save fetched data
         fs.writeFile(path + 'fetchedData.html', html, { encoding: 'utf8', })
-            .then(() => console.log('Saved fetchedData.html successfully'))
+            .then(() => fs.writeFileSync(lastFetchedPath, new Date().getTime()))
+            .then(() => console.log(`Saved ${path}fetchedData.html successfully`))
             .catch((err) => console.error('Error on saving fetchedData.html: ', err));
 
         return html;

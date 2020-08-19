@@ -23,7 +23,19 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\TEST.js",
+            "program": "${workspaceFolder}\\CONST\\TEST.js",
+            "env": {
+                "CHROME_DEBUG_PORT": "9222",
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "getMyRating",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\getMyRating.js",
             "env": {
                 "CHROME_DEBUG_PORT": "9222",
             }
