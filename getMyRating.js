@@ -3,6 +3,7 @@ const compareToDorm2019 = require('./data processing and analytics/compareToDorm
 
 
 const FIO = 'бояркин владислав витальевич';
+const rusScores = '91';
 const studyField = {
     studyField: 'Прикладная математика',
     code: '01.03.04',
@@ -12,7 +13,7 @@ const studyField = {
 
 
 (async function () {
-    const { analyticsTable, flattenMaiTable } = await fetchProcessAndAnalyzeData(studyField.code, FIO);
+    const { analyticsTable, flattenMaiTable } = await fetchProcessAndAnalyzeData(studyField.studyField, FIO, rusScores);
 
     printTable(analyticsTable, 'Мои места', 40);
 
