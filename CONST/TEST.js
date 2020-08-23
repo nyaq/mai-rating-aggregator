@@ -4,23 +4,14 @@ const tableToJson = require('tabletojson').Tabletojson;
 const fs = require('fs-extra');
 const PDFParser = require('pdf2json');
 const { getShrinkedStudyField } = require('../data fetching/getStudyField');
+const { getShrinkedName } = require('../data processing and analytics/filterApplicants');
 
 const PATH = "./pdf2json/test.json";
 const regexp = /\d\d[.]\d\d[.]\d\d \([\wа-яА-Я]*\) —[\s\w#&;а-яА-Я]*/gi;
 
 
-(async function () {
-    // const studyApplicantsMap = getStudyFieldToApplicantsWithDormMap('./1st wave.html');
-
-    const studyFieldsData = JSON.parse(fs.readFileSync('./CONST/STUDY_FIELDS_COMBINED.json', { encoding: 'utf-8' }));
-    studyFieldsData.forEach(studyField => {
-        studyField[0] = studyField[1]['Код специальности'];
-    });
-
-    fs.writeFileSync('./CONST/STUDY_FIELDS_BY_CODE.json', JSON.stringify(studyFieldsData), { encoding: 'utf-8' });
-
-})();
-
+const test = getShrinkedName('Пономарев Никита Владимирович') == getShrinkedName('Пономарев Никита Владимирович')
+console.log(test);
 
 function getStudyFieldToApplicantsWithDormMap(path) {
     const html = fs.readFileSync(path, { encoding: 'utf-8' });

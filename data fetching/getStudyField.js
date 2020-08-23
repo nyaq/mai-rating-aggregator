@@ -1,7 +1,8 @@
 const fs = require('fs-extra');
 
-const STUDY_FIELDS_PATH = './CONST/STUDY_FIELDS_COMBINED.json';
-const STUDY_FIELDS_BY_CODEPATH = './CONST/STUDY_FIELDS_BY_CODE.json';
+// const STUDY_FIELDS_PATH = './CONST/STUDY_FIELDS_COMBINED.json';
+const STUDY_FIELDS_PATH = 'D:\\repos\\NyaqStudios\\mai-rating\\CONST\\STUDY_FIELDS_COMBINED.json';
+const STUDY_FIELDS_BY_CODEPATH = 'D:\\repos\\NyaqStudios\\mai-rating\\CONST\\STUDY_FIELDS_BY_CODE.json';
 
 
 let _studyFieldsMap;
@@ -37,7 +38,11 @@ module.exports.getStudyField = async function (studyFieldRaw) {
     const studyFieldsMap = await loadStudyFieldsMap();
     const resultingStudyField = studyFieldsMap.get(studyFieldShrinkedName);
 
-    console.log('Got study field "' + resultingStudyField['Специальность, ОП'] + '" by code "' + code + '"');
+
+    if (!resultingStudyField)
+        throw new Error('Не смог распознать направление обучения, попробуй ещё раз!');
+
+    console.log('Got study field "' + resultingStudyField['Специальность, ОП'] + '" by query "' + studyFieldRaw + '"');
 
     return resultingStudyField;
 };

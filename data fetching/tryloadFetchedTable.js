@@ -2,12 +2,14 @@ const fs = require('fs-extra');
 const fetch = require('node-fetch');
 const threshold = 5 * 60 * 1000; // 5 min in miliseconds
 
+const WORKDIR = 'D:/repos/NyaqStudios/mai-rating';
+
 module.exports = async function (type, studyField, url, getUrlCallback) {
     try {
         if (type !== 'mai' && type !== 'admlist')
             throw new Error("tryloadFetchedTable: Type should be 'mai' or 'admlist' but is " + type);
 
-        const path = `./data fetching/fetched tables/${studyField}/${type}/`;
+        const path = `${WORKDIR}/data fetching/fetched tables/${studyField}/${type}/`;
         const lastFetchedPath = path + 'lastFetched.txt';
 
         // Ensure lastFetched.txt exists

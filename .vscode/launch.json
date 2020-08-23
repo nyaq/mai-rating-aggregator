@@ -39,6 +39,18 @@
             "env": {
                 "CHROME_DEBUG_PORT": "9222",
             }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "testAnotherPerson",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\testAnotherPerson.js",
+            "env": {
+                "CHROME_DEBUG_PORT": "9222",
+            }
         }
     ]
 }

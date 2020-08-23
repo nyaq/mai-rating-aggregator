@@ -9,23 +9,29 @@ const { prepareAdmlistData, prepareMaiData } = require('./data processing and an
 const { getStudyField } = require('./data fetching/getStudyField');
 
 
-module.exports.fetchProcessAndAnalyzeData = async function (studyFieldName, FIO) {
+module.exports.fetchProcessAndAnalyzeData = async function (studyFieldName, FIO, rusScores) {
     const studyField = await getStudyField(studyFieldName);
 
-    const HTMLtablePromise = fetchTable(studyField);
-    const admlistDataPromise = fetchAdmlistData(studyField);
+    const HTMLtablePromise = fetchTable(studyField["Специальность, ОП"], studyField.maiQuery);
+    const admlistDataPromise = fetchAdmlistData(studyField["Специальность, ОП"], studyField.admlistURL);
 
     // Async load mai and admlist ratings
     const [HTMLtable, admlistData] = await Promise.all([HTMLtablePromise, admlistDataPromise]);
 
-    const maiTables = tableToJson.convert(HTMLtable);
+    let maiTables = tableToJson.convert(HTMLtable);
+    // try {
+    //     maiTables = tableToJson.convert(HTMLtable);
+    // } catch (err) {
+    //     console.log('error on convertimg mai table to json!', err);
+    //     maiTables = [];
+    // }
 
-    const flattenMaiTable = prepareMaiData(maiTables);
+    let flattenMaiTable = prepareMaiData(maiTables);
     const admlist = prepareAdmlistData(admlistData);
 
     const applicants = combineMaiAndAdmlist(flattenMaiTable, admlist);
 
-    const analytics = getAnalytics(FIO, applicants);
+    const analytics = getAnalytics(FIO, rusScores, applicants);
 
     analytics.forEach(entry => {
         console.log('');
@@ -36,19 +42,18 @@ module.exports.fetchProcessAndAnalyzeData = async function (studyFieldName, FIO)
     const analyticsTable = {
         'Во всём списке': {
             'Во всём списке': analytics[0].place,
-            'Среди НЕ подавших согласие в другое место': analytics[4].place,
+            'Среди НЕ подавших согласие в другое место': analytics[1].place,
             'Среди подавших согласие': analytics[2].place,
         },
         'Среди нуждающихся в общежитии': {
-            'Во всём списке': analytics[1].place,
-            'Среди НЕ подавших согласие в другое место': analytics[5].place,
-            'Среди подавших согласие': analytics[3].place,
+            'Во всём списке': analytics[3].place,
+            'Среди НЕ подавших согласие в другое место': analytics[4].place,
+            'Среди подавших согласие': analytics[5].place,
         },
     };
 
-    return { analyticsTable, flattenMaiTable };
+    return { analytics, analyticsTable, flattenMaiTable };
 };
-
 
 
 module.exports.printTable = function printTable(table, title, fillXtimes = 10) {
@@ -58,4 +63,4 @@ module.exports.printTable = function printTable(table, title, fillXtimes = 10) {
     // console.log(consoleTable(table).toString());
     console.table(table);
     console.log('');
-}
+};

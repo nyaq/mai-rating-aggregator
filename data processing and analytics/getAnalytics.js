@@ -1,44 +1,43 @@
 const { filterExceptName, findOnesPlace } = require('./filterApplicants');
 
-module.exports = function (FIO, applicants) {
+module.exports = function (FIO, rusScores, applicants) {
     const dormRequired = filterExceptName(applicants, {
-        FIO, dormRequired: true,
+        FIO, rusScores, dormRequired: true,
     });
 
     const originalsInMai = filterExceptName(applicants, {
-        FIO, originalsInMai: true,
+        FIO, rusScores, originalsInMai: true,
     });
 
     const originalsNotInOtherUni = filterExceptName(applicants, {
-        FIO, originalsIsNotInOtherUni: true,
+        FIO, rusScores, originalsIsNotInOtherUni: true,
     });
 
     const dormRequiredOriginalsInMai = filterExceptName(applicants, {
-        FIO, dormRequired: true, originalsInMai: true,
+        FIO, rusScores, dormRequired: true, originalsInMai: true,
     });
 
     const dormRequiredExcludeOriginalsInOtherUni = filterExceptName(applicants, {
-        FIO, dormRequired: true, originalsIsNotInOtherUni: true,
+        FIO, rusScores, dormRequired: true, originalsIsNotInOtherUni: true,
     });
 
     return [{
         description: 'Место в полном списке',
-        place: findOnesPlace(applicants, FIO)
+        place: findOnesPlace(applicants, FIO, rusScores)
+    }, {
+        description: 'Среди НЕ подавших согласие в другое место',
+        place: findOnesPlace(originalsNotInOtherUni, FIO, rusScores)
+    }, {
+        description: 'Среди подавших согласие',
+        place: findOnesPlace(originalsInMai, FIO, rusScores)
     }, {
         description: 'Среди нуждающихся в общежитии',
-        place: findOnesPlace(dormRequired, FIO)
+        place: findOnesPlace(dormRequired, FIO, rusScores)
     }, {
-        description: 'Среди подавших оригинал на это направление',
-        place: findOnesPlace(originalsInMai, FIO)
+        description: 'Среди нуждающихся в общежитии И НЕ подавших согласие в другое место',
+        place: findOnesPlace(dormRequiredExcludeOriginalsInOtherUni, FIO, rusScores)
     }, {
-        description: 'Среди подавших оригинал на это направление И нуждающихся в общежитии',
-        place: findOnesPlace(dormRequiredOriginalsInMai, FIO)
-    }, {
-        description: 'Среди НЕ подавших оригинал на ДРУГИЕ направления',
-        place: findOnesPlace(originalsNotInOtherUni, FIO)
-    }, {
-        description: 'Среди нуждающихся в общежитии И НЕ подавших оригинал на ДРУГИЕ направления',
-        place: findOnesPlace(dormRequiredExcludeOriginalsInOtherUni, FIO)
-    },
-    ];
+        description: 'Среди нуждающихся в общежитии И подавших согласие',
+        place: findOnesPlace(dormRequiredOriginalsInMai, FIO, rusScores)
+    }];
 };

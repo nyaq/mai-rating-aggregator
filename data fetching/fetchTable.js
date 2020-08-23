@@ -1,9 +1,10 @@
 const fetch = require('node-fetch');
-const tryloadFetchedTable =require('./tryloadFetchedTable');
+const tryloadFetchedTable = require('./tryloadFetchedTable');
 
-module.exports = async function ({ studyField, maiQuery }) {
+module.exports = async function (studyFieldName, maiQuery) {
+    // const studyField = studyFieldData["Специальность, ОП"];
     // Provide not url, but callback to get the one
-    return tryloadFetchedTable('mai', studyField, null, getMaiUrl.bind(null, maiQuery));
+    return tryloadFetchedTable('mai', studyFieldName, null, getMaiUrl.bind(null, maiQuery));
 };
 
 async function getMaiUrl(maiQuery) {
@@ -15,8 +16,9 @@ async function getMaiUrl(maiQuery) {
     const value = html.substr(valueIndex, 15);
 
     const URL = `https://public.mai.ru/priem/rating/data/${value}${maiQuery}.html`;
-    
-    console.log('URL :>> ', URL);
+
+    // console.log('URL :>> ', URL);
+
 
     return URL;
 }
