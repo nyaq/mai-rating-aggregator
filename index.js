@@ -26,7 +26,12 @@ module.exports.fetchProcessAndAnalyzeData = async function (studyFieldName, FIO,
     //     maiTables = [];
     // }
 
-    let flattenMaiTable = prepareMaiData(maiTables);
+    const flattenMaiTable = prepareMaiData(maiTables);
+    if (flattenMaiTable.length === 0)
+        throw new Error('Не смог скачать рейтинг с сайта маи для данного направления. ' +
+            'Не волнуйся, проблема скорее всего во мне...');
+
+
     const admlist = prepareAdmlistData(admlistData);
 
     const applicants = combineMaiAndAdmlist(flattenMaiTable, admlist);

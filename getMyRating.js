@@ -4,7 +4,7 @@ const compareToDorm2019 = require('./data processing and analytics/compareToDorm
 
 const FIO = 'бояркин владислав витальевич';
 const rusScores = '91';
-const studyField = {
+const studyFieldData = {
     studyField: 'Прикладная математика',
     code: '01.03.04',
     admlistURL: 'http://admlist.ru/mai/6e9d426ceb62e999577b9e195cbcc865.html',
@@ -13,12 +13,17 @@ const studyField = {
 
 
 (async function () {
-    const { analyticsTable, flattenMaiTable } = await fetchProcessAndAnalyzeData(studyField.studyField, FIO, rusScores);
+    for (const studyField of ['Прикладная математика', 'Программная инженерия', 'Системный анализ и управление']) {
 
-    printTable(analyticsTable, 'Мои места', 40);
+       /*  const { analyticsTable, flattenMaiTable } =  */fetchProcessAndAnalyzeData(studyField, FIO, rusScores)
+            .then(({ analyticsTable, flattenMaiTable }) => printTable(analyticsTable, 'Мои места', 40));
 
-    const dorm2019 = compareToDorm2019(flattenMaiTable);
+        // printTable(analyticsTable, 'Мои места', 40);
 
-    printTable(dorm2019, 'Места в рейтинге и баллы тех, кому выдали общежитие в 2019', 15);
+
+    }
+
+    // const dorm2019 = compareToDorm2019(flattenMaiTable);
+    // printTable(dorm2019, 'Места в рейтинге и баллы тех, кому выдали общежитие в 2019', 15);
 
 })();
